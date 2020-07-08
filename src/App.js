@@ -4,6 +4,7 @@ import './App.css';
 import PlayerListTable from './components/player-list-table';
 import PlayerDetailsCard from './components/player-details-card';
 import Alert from './components/alert';
+import SearchForm from './components/search-form';
 
 function App() {
   const coby = {
@@ -33,7 +34,7 @@ function App() {
 
       while (nextPage) {
         const url = `https://www.balldontlie.io/api/v1/players?per_page=100&page=${page++}`;
-        const result = await fetch(url).then(handleFetchResponse);
+        const result = await fetchData(url);
         nextPage = result.meta.next_page;
         players = players.concat(result.data);
         await new Promise((r) => setTimeout(r, 2000));
@@ -57,7 +58,7 @@ function App() {
 
   async function getPlayers(name) {
     const url = `https://www.balldontlie.io/api/v1/players?per_page=100&search=${name}`;
-    const result = await fetch(url).then(handleFetchResponse);
+    const result = await fetchData(url);
     setFilteredPlayers(result.data);
   }
 
@@ -87,14 +88,13 @@ function App() {
   }
 
   async function getPlayerById(id) {
-    const url = `https://www.balldontlie.io/api/v1/players/${id}`;
-    return await fetch(url).then(handleFetchResponse);
+    return await fetchData(`https://www.balldontlie.io/api/v1/players/${id}`);
   }
 
   async function handlePlayerClick(id) {
     const url = `https://www.balldontlie.io/api/v1/stats?player_ids[]=${id}`;
 
-    const results = await fetch(url).then(handleFetchResponse).then(averagePlayerStats);
+    const results = await fetchData(url).then(averagePlayerStats);
 
     let playerData = loading ? await getPlayerById(id) : allPlayers.find((player) => player.id === id);
 
@@ -108,18 +108,15 @@ function App() {
     });
   }
 
+  async function fetchData(url) {
+    return await fetch(url).then(handleFetchResponse);
+  }
+
   return (
     <article>
-      <section>
-        <PlayerDetailsCard player={selectedPlayer}></PlayerDetailsCard>
-      </section>
       <section className="search-form">
-        <form onSubmit={handleSubmit}>
-          <label>
-            <input type="text" value={name} onChange={handleChange} />
-          </label>
-          <input type="submit" value="Submit" />
-        </form>
+        <PlayerDetailsCard className="card" player={selectedPlayer}></PlayerDetailsCard>
+        <SearchForm name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchForm>
       </section>
       <section>
         {showAlert ? <Alert setShow={setShowAlert}></Alert> : null}

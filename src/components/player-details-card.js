@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card } from 'react-bootstrap';
+import Card from 'react-bootstrap/Card';
 
 export default function (props) {
   const player = props.player;

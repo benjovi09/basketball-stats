@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Alert, Button } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
 
 export default function (props) {
   return (
