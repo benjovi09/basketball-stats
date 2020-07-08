@@ -1,4 +1,4 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). This is currently being hosted via [Firebase](https://basketball-stats-6b210.web.app). Basketball player data obtained from the [balldontlie API](https://www.balldontlie.io/)
 
 ## Available Scripts
 
