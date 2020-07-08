@@ -1,32 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-function App() {
-  const [name, setName] = useState('Booger');
-  const [allPlayers, setAllPlayers] = useState([]);
-  const [filteredPlayers, setFilteredPlayers] = useState([]);
-  const [loading, setLoading] = useState(true);
+import PlayerListTable from './components/player-list-table';
+import PlayerDetailsCard from './components/player-details-card';
+import Alert from './components/alert';
 
-  const [selectedPlayer, setSelectedPlayer] = useState({
-    id: 1,
-    first_name: 'Booger',
-    last_name: 'Johnson',
-    team: { abbreviation: 'USA' },
+function App() {
+  const coby = {
+    id: 666956,
+    first_name: 'Coby',
+    last_name: 'White',
+    team: { abbreviation: 'CHI', full_name: 'Chicago Bulls' },
     stats: {
-      averageAssistsPerGame: 2,
+      averageAssistsPerGame: 2.44,
+      averageBlocksPerGame: 0,
+      averagePointsPerGame: 11.92,
     },
-  });
+  };
+
+  const [name, setName] = useState('Coby White');
+  const [allPlayers, setAllPlayers] = useState([]);
+  const [filteredPlayers, setFilteredPlayers] = useState([coby]);
+  const [selectedPlayer, setSelectedPlayer] = useState(coby);
+  const [loading, setLoading] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      setAllPlayers(await getAllPlayers());
+    async function getAllPlayers() {
+      let page = 1;
+      let nextPage = 2;
+      let players = [];
+
+      while (nextPage) {
+        const url = `https://www.balldontlie.io/api/v1/players?per_page=100&page=${page++}`;
+        const result = await fetch(url).then(handleFetchResponse);
+        nextPage = result.meta.next_page;
+        players = players.concat(result.data);
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+      setLoading(false);
+      setAllPlayers(players);
     }
-    fetchData();
+
+    getAllPlayers();
   }, []);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    if (loading) getPlayers(name);
+    if (loading) await getPlayers(name);
     else setFilteredPlayers(allPlayers.filter((player) => `${player.first_name} ${player.last_name}`.includes(name)));
   }
 
@@ -40,26 +61,11 @@ function App() {
     setFilteredPlayers(result.data);
   }
 
-  async function getAllPlayers() {
-    let page = 1;
-    let nextPage = 2;
-    let players = [];
-
-    while (nextPage) {
-      const url = `https://www.balldontlie.io/api/v1/players?per_page=100&page=${page++}`;
-      const result = await fetch(url).then(handleFetchResponse);
-      nextPage = result.meta.next_page;
-      players = players.concat(result.data);
-      await new Promise((r) => setTimeout(r, 1002));
-    }
-    setLoading(false);
-    return players;
-  }
-
   async function handleFetchResponse(r) {
     if (r.ok) {
       return await r.json();
     } else {
+      setShowAlert(true);
       console.log(await r.json());
     }
   }
@@ -105,45 +111,19 @@ function App() {
   return (
     <article>
       <section>
-        <h4>{`${selectedPlayer.first_name} ${selectedPlayer.last_name}`}</h4>
-        <ul>
-          <li>Team: {selectedPlayer.team?.full_name}</li>
-          <li>Average Assists Per Game: {selectedPlayer.stats.averageAssistsPerGame}</li>
-          <li>Average Points Per Game: {selectedPlayer.stats.averagePointsPerGame}</li>
-          <li>Average Blocks Per Game: {selectedPlayer.stats.averageBlocksPerGame}</li>
-        </ul>
+        <PlayerDetailsCard player={selectedPlayer}></PlayerDetailsCard>
       </section>
-      <span>
-        <section>
-          <form onSubmit={handleSubmit}>
-            <label>
-              Name:
-              <input type="text" value={name} onChange={handleChange} />
-            </label>
-            <input type="submit" value="Submit" />
-          </form>
-        </section>
-      </span>
+      <section className="search-form">
+        <form onSubmit={handleSubmit}>
+          <label>
+            <input type="text" value={name} onChange={handleChange} />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+      </section>
       <section>
-        {loading ? <h2>Loading...</h2> : null}
-        <table>
-          <thead>
-            <tr>
-              <th>id</th>
-              <th>name</th>
-              <th>team</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPlayers.map((player) => (
-              <tr key={player.id} onClick={() => handlePlayerClick(player.id)}>
-                <td>{player.id}</td>
-                <td>{`${player.first_name} ${player.last_name}`}</td>
-                <td>{player.team.abbreviation}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {showAlert ? <Alert setShow={setShowAlert}></Alert> : null}
+        <PlayerListTable players={filteredPlayers} handlePlayerClick={handlePlayerClick}></PlayerListTable>
       </section>
     </article>
   );
