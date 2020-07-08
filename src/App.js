@@ -27,7 +27,7 @@ function App() {
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
-    async function getAllPlayers() {
+    async function getAllPlayers(fetchData) {
       let page = 1;
       let nextPage = 2;
       let players = [];
@@ -43,7 +43,7 @@ function App() {
       setAllPlayers(players);
     }
 
-    getAllPlayers();
+    getAllPlayers(fetchData);
   }, []);
 
   async function handleSubmit(event) {
@@ -60,15 +60,6 @@ function App() {
     const url = `https://www.balldontlie.io/api/v1/players?per_page=100&search=${name}`;
     const result = await fetchData(url);
     setFilteredPlayers(result.data);
-  }
-
-  async function handleFetchResponse(r) {
-    if (r.ok) {
-      return await r.json();
-    } else {
-      setShowAlert(true);
-      console.log(await r.json());
-    }
   }
 
   function averagePlayerStats(stats) {
@@ -110,6 +101,15 @@ function App() {
 
   async function fetchData(url) {
     return await fetch(url).then(handleFetchResponse);
+  }
+
+  async function handleFetchResponse(r) {
+    if (r.ok) {
+      return await r.json();
+    } else {
+      setShowAlert(true);
+      console.log(await r.json());
+    }
   }
 
   return (
