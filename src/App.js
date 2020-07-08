@@ -44,12 +44,12 @@ function App() {
     }
 
     getAllPlayers();
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
 
     // TODO: Fix this
     // https://stackoverflow.com/a/55844055
     // https://medium.com/@infinitypaul/reactjs-useeffect-usecallback-simplified-91e69fb0e7a3
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSubmit(event) {
