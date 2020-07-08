@@ -5,6 +5,7 @@ import PlayerListTable from './components/player-list-table';
 import PlayerDetailsCard from './components/player-details-card';
 import Alert from './components/alert';
 import SearchForm from './components/search-form';
+import { Jumbotron } from 'react-bootstrap';
 
 function App() {
   const coby = {
@@ -48,7 +49,7 @@ function App() {
     // TODO: Fix this
     // https://stackoverflow.com/a/55844055
     // https://medium.com/@infinitypaul/reactjs-useeffect-usecallback-simplified-91e69fb0e7a3
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -120,9 +121,11 @@ function App() {
 
   return (
     <article>
-      <section className="search-form">
-        <PlayerDetailsCard className="card" player={selectedPlayer}></PlayerDetailsCard>
-        <SearchForm name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchForm>
+      <section className="center search-form">
+        <Jumbotron>
+          <PlayerDetailsCard className="card" player={selectedPlayer}></PlayerDetailsCard>
+        </Jumbotron>
+        <SearchForm  name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchForm>
       </section>
       <section>
         {showAlert ? <Alert setShow={setShowAlert}></Alert> : null}
