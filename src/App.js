@@ -106,7 +106,7 @@ function App() {
       return await r.json();
     } else {
       setShowAlert(true);
-      console.log(await r.json());
+      console.log(r);
     }
   }
 
