@@ -28,23 +28,24 @@ function App() {
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
-    async function getAllPlayers() {
-      let page = 1;
-      let nextPage = 2;
-      let players = [];
-
-      while (nextPage) {
-        const url = `https://www.balldontlie.io/api/v1/players?per_page=100&page=${page++}`;
-        const result = await fetchData(url);
-        nextPage = result.meta.next_page;
-        players = players.concat(result.data);
-        await new Promise((r) => setTimeout(r, 2000));
-      }
-      setLoading(false);
-      setAllPlayers(players);
+    function getAllPlayers(page, players) {
+      if (page) {
+        return fetch(`https://www.balldontlie.io/api/v1/players?per_page=100&page=${page}`)
+          .then((response) => response.json())
+          .then((response) => {
+            return new Promise((r) => setTimeout(r, 500)).then(() => {
+              return response;
+            });
+          })
+          .then((result) => {
+            return getAllPlayers(result.meta.next_page, players.concat(result.data));
+          });
+      } else return players;
     }
 
-    getAllPlayers();
+    getAllPlayers(1, allPlayers)
+      .then(setAllPlayers)
+      .then(() => setLoading(false));
 
     // TODO: Fix this
     // https://stackoverflow.com/a/55844055
@@ -125,7 +126,7 @@ function App() {
         <Jumbotron>
           <PlayerDetailsCard className="card" player={selectedPlayer}></PlayerDetailsCard>
         </Jumbotron>
-        <SearchForm  name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchForm>
+        <SearchForm name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchForm>
       </section>
       <section>
         {showAlert ? <Alert setShow={setShowAlert}></Alert> : null}
