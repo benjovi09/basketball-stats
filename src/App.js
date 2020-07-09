@@ -28,24 +28,20 @@ function App() {
   const [showAlert, setShowAlert] = useState(false);
 
   const getAllPlayers = useCallback((page, players) => {
-      if (page) {
-        return fetch(`https://www.balldontlie.io/api/v1/players?per_page=100&page=${page}`)
-          .then((response) => response.json())
-          .then((response) => {
-            return new Promise((r) => setTimeout(r, 500)).then(() => {
-              return response;
-            });
-          })
-          .then((result) => {
-            return getAllPlayers(result.meta.next_page, players.concat(result.data));
-          });
-      } else return players;
+    if (page) {
+      return fetch(`https://www.balldontlie.io/api/v1/players?per_page=100&page=${page}`)
+        .then((response) => response.json())
+        .catch(() => new Promise((r) => setTimeout(r, 25000)).then(() => getAllPlayers(page, players)))
+        .then((result) => {
+          return getAllPlayers(result.meta?.next_page, players.concat(result.data));
+        });
+    } else return players;
   }, []);
 
   useEffect(() => {
     getAllPlayers(1, [])
       .then(setAllPlayers)
-      .then(() => setLoading(false));
+      .finally(() => setLoading(false));
   }, [getAllPlayers]);
 
   async function handleSubmit(event) {
