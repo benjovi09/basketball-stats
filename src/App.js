@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 
 import PlayerListTable from './components/player-list-table';
@@ -27,8 +27,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
 
-  useEffect(() => {
-    function getAllPlayers(page, players) {
+  const getAllPlayers = useCallback((page, players) => {
       if (page) {
         return fetch(`https://www.balldontlie.io/api/v1/players?per_page=100&page=${page}`)
           .then((response) => response.json())
@@ -41,18 +40,13 @@ function App() {
             return getAllPlayers(result.meta.next_page, players.concat(result.data));
           });
       } else return players;
-    }
+  }, []);
 
-    getAllPlayers(1, allPlayers)
+  useEffect(() => {
+    getAllPlayers(1, [])
       .then(setAllPlayers)
       .then(() => setLoading(false));
-
-    // TODO: Fix this
-    // https://stackoverflow.com/a/55844055
-    // https://medium.com/@infinitypaul/reactjs-useeffect-usecallback-simplified-91e69fb0e7a3
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getAllPlayers]);
 
   async function handleSubmit(event) {
     event.preventDefault();
